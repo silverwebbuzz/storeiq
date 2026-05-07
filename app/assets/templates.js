@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  var API_BASE = (window.SIQ_API_BASE || (window.SIQ_BASE_URL ? window.SIQ_BASE_URL + '/api' : 'api'));
   var params = new URLSearchParams(window.location.search);
   var shop = params.get('shop') || '';
   var host = params.get('host') || '';
@@ -37,10 +38,10 @@
     box.innerHTML = html || '<div class="siq-empty">No templates available.</div>';
   }
 
-  fetch('api/templates/bulk.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
+  fetch(API_BASE + '/templates/bulk.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
     renderGroups('tpl-bulk', d, 'bulk-edit');
   });
-  fetch('api/templates/campaigns.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
+  fetch(API_BASE + '/templates/campaigns.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
     renderGroups('tpl-campaign', d, 'campaigns');
   });
 })();

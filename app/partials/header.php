@@ -13,5 +13,9 @@ $baseUrlForAssets = rtrim((string)(defined('BASE_URL') ? BASE_URL : ''), '/');
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?php echo htmlspecialchars($pageTitleResolved, ENT_QUOTES, 'UTF-8'); ?></title>
   <link rel="stylesheet" href="<?php echo htmlspecialchars($baseUrlForAssets, ENT_QUOTES, 'UTF-8'); ?>/assets/styles.css">
+  <script>
+    window.SIQ_BASE_URL = <?php echo json_encode($baseUrlForAssets); ?>;
+    window.SIQ_API_BASE = window.SIQ_BASE_URL + '/api';
+  </script>
 </head>
 <body class="siq-body">

@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  var API_BASE = (window.SIQ_API_BASE || (window.SIQ_BASE_URL ? window.SIQ_BASE_URL + '/api' : 'api'));
   var params = new URLSearchParams(window.location.search);
   var shop = params.get('shop') || '';
   var host = params.get('host') || '';
@@ -23,7 +24,7 @@
   function loadList() {
     var box = el('cmp-list'); if (!box) return;
     box.textContent = 'Loading…';
-    fetch('api/campaigns/list.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(API_BASE + '/campaigns/list.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
       var rows = d.campaigns || [];
       if (!rows.length) { box.innerHTML = '<div class="siq-empty">No campaigns yet.</div>'; return; }
       box.innerHTML = '<table class="siq-table"><thead><tr><th>Name</th><th>Status</th><th>Start</th><th>End</th><th>Auto-revert</th><th></th></tr></thead><tbody>' +
@@ -39,7 +40,7 @@
       box.querySelectorAll('[data-cancel]').forEach(function (b) {
         b.addEventListener('click', function () {
           if (!confirm('Cancel this scheduled campaign?')) return;
-          fetch('api/campaigns/cancel.php' + qs, {
+          fetch(API_BASE + '/campaigns/cancel.php' + qs, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ campaign_id: parseInt(b.getAttribute('data-cancel'), 10) })
           }).then(function () { loadList(); });
@@ -71,7 +72,7 @@
     }
     grid.innerHTML = html;
 
-    fetch('api/campaigns/list.php' + qs).then(function (r) { return r.json(); }).then(function (data) {
+    fetch(API_BASE + '/campaigns/list.php' + qs).then(function (r) { return r.json(); }).then(function (data) {
       (data.campaigns || []).forEach(function (c) {
         if (!c.start_at) return;
         var dt = new Date(c.start_at.replace(' ', 'T'));
@@ -104,7 +105,7 @@
     modal.classList.add('is-open'); modal.setAttribute('aria-hidden', 'false');
     el('cmp-modal-step').textContent = 'Step 1 of 3 — pick a template';
     modalBody.textContent = 'Loading…';
-    fetch('api/campaigns/templates.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(API_BASE + '/campaigns/templates.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
       var groups = d.groups || {};
       var html = '<div class="siq-grid-3">';
       Object.keys(groups).forEach(function (cat) {
@@ -171,7 +172,7 @@
       '</div>' +
       '<div class="siq-mt-24"><button class="btn btn-primary" id="c-submit" type="button">Schedule campaign</button></div>';
     el('c-submit').addEventListener('click', function () {
-      fetch('api/campaigns/create.php' + qs, {
+      fetch(API_BASE + '/campaigns/create.php' + qs, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(draft)
       }).then(function (r) { return r.json(); }).then(function (d) {

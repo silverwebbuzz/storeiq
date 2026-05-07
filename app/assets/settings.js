@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  var API_BASE = (window.SIQ_API_BASE || (window.SIQ_BASE_URL ? window.SIQ_BASE_URL + '/api' : 'api'));
   var params = new URLSearchParams(window.location.search);
   var shop = params.get('shop') || '';
   var host = params.get('host') || '';
@@ -11,7 +12,7 @@
 
   var promoBody = el('settings-promo-body');
   if (promoBody) {
-    fetch('api/promo/claim.php' + qs, { method: 'POST' }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(API_BASE + '/promo/claim.php' + qs, { method: 'POST' }).then(function (r) { return r.json(); }).then(function (d) {
       if (d.error) { promoBody.textContent = ''; var card = el('settings-promo-card'); if (card) card.style.display = 'none'; return; }
       promoBody.innerHTML =
         '<b>' + escape(d.headline || 'You unlocked a SalesBoost AI perk') + '</b>' +

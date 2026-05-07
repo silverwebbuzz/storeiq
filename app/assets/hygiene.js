@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  var API_BASE = (window.SIQ_API_BASE || (window.SIQ_BASE_URL ? window.SIQ_BASE_URL + '/api' : 'api'));
   var params = new URLSearchParams(window.location.search);
   var shop = params.get('shop') || '';
   var host = params.get('host') || '';
@@ -29,7 +30,7 @@
 
   function loadFlags() {
     var box = el('hyg-flags'); var circle = el('hyg-health-circle'); var last = el('hyg-last-scan');
-    fetch('api/hygiene/flags.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(API_BASE + '/hygiene/flags.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
       if (d.health_score == null) {
         circle.innerHTML = '<div class="siq-empty">No scan yet.</div>';
       } else {
@@ -52,7 +53,7 @@
       }).join('');
       box.querySelectorAll('[data-dismiss]').forEach(function (b) {
         b.addEventListener('click', function () {
-          fetch('api/hygiene/dismiss.php' + qs, {
+          fetch(API_BASE + '/hygiene/dismiss.php' + qs, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ flag_id: parseInt(b.getAttribute('data-dismiss'), 10) })
           }).then(function () { loadFlags(); });
@@ -64,7 +65,7 @@
   function loadRules() {
     var box = el('hyg-rules'); if (!box) return;
     box.textContent = 'Loading…';
-    fetch('api/hygiene/rules.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(API_BASE + '/hygiene/rules.php' + qs).then(function (r) { return r.json(); }).then(function (d) {
       var groups = d.groups || {};
       var html = '';
       Object.keys(groups).forEach(function (cat) {
@@ -81,7 +82,7 @@
       box.innerHTML = html;
       box.querySelectorAll('input[data-rule-id]').forEach(function (cb) {
         cb.addEventListener('change', function () {
-          fetch('api/hygiene/rules.php' + qs, {
+          fetch(API_BASE + '/hygiene/rules.php' + qs, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ rule_id: parseInt(cb.getAttribute('data-rule-id'), 10), enabled: cb.checked })
           });
@@ -93,7 +94,7 @@
   if (el('hyg-scan-btn')) {
     el('hyg-scan-btn').addEventListener('click', function () {
       var b = el('hyg-scan-btn'); b.disabled = true; b.textContent = 'Queuing…';
-      fetch('api/hygiene/scan.php' + qs, { method: 'POST' }).then(function (r) { return r.json(); }).then(function () {
+      fetch(API_BASE + '/hygiene/scan.php' + qs, { method: 'POST' }).then(function (r) { return r.json(); }).then(function () {
         b.disabled = false; b.textContent = 'Run scan now';
         setTimeout(loadFlags, 1500);
       });

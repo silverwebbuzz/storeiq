@@ -1,6 +1,7 @@
 (function () {
   'use strict';
 
+  var API_BASE = (window.SIQ_API_BASE || (window.SIQ_BASE_URL ? window.SIQ_BASE_URL + '/api' : 'api'));
   var params = new URLSearchParams(window.location.search);
   var shop = params.get('shop') || '';
   var host = params.get('host') || '';
@@ -87,18 +88,29 @@
     }
   }
 
+  function showError(msg) {
+    var box = el('dash-health');
+    if (box) box.innerHTML = '<div class="siq-empty" style="color:#b91c1c;">' + escape(msg) + '</div>';
+  }
   function load() {
-    fetch('api/dashboard.php' + qs, { credentials: 'same-origin' })
-      .then(function (r) { return r.json(); })
+    fetch(API_BASE + '/dashboard.php' + qs, { credentials: 'same-origin' })
+      .then(function (r) {
+        if (!r.ok) { return r.text().then(function (t) { throw new Error('HTTP ' + r.status + ': ' + t.slice(0, 200)); }); }
+        return r.json();
+      })
       .then(function (d) {
-        if (!d || d.error) { return; }
+        if (!d) return;
+        if (d.error) { showError('API error: ' + d.error); return; }
         renderHealth(d);
         renderUpcoming(d);
         renderActivity(d);
         renderActiveJobs(d);
         renderPromo(d);
       })
-      .catch(function (e) { if (window.console) console.error('dashboard load failed', e); });
+      .catch(function (e) {
+        showError('Dashboard load failed: ' + (e && e.message ? e.message : e));
+        if (window.console) console.error('dashboard load failed', e);
+      });
   }
 
   var scanBtn = el('dash-scan-now');
@@ -106,7 +118,7 @@
     scanBtn.addEventListener('click', function () {
       scanBtn.disabled = true;
       scanBtn.textContent = 'Queuing scan…';
-      fetch('api/hygiene/scan.php' + qs, { method: 'POST', credentials: 'same-origin' })
+      fetch(API_BASE + '/hygiene/scan.php' + qs, { method: 'POST', credentials: 'same-origin' })
         .then(function (r) { return r.json(); })
         .then(function () {
           scanBtn.textContent = 'Scan queued';

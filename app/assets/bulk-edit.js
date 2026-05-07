@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  var API_BASE = (window.SIQ_API_BASE || (window.SIQ_BASE_URL ? window.SIQ_BASE_URL + '/api' : 'api'));
   var params = new URLSearchParams(window.location.search);
   var shop = params.get('shop') || '';
   var host = params.get('host') || '';
@@ -48,7 +49,7 @@
       var scope = el('be-filter-scope').value;
       var value = el('be-filter-value').value;
       el('be-preview-result').textContent = 'Counting…';
-      fetch('api/bulk-edit/preview.php' + qs + '&scope=' + encodeURIComponent(scope) + '&value=' + encodeURIComponent(value))
+      fetch(API_BASE + '/bulk-edit/preview.php' + qs + '&scope=' + encodeURIComponent(scope) + '&value=' + encodeURIComponent(value))
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (d.error) { el('be-preview-result').textContent = 'Error: ' + d.error; return; }
@@ -70,7 +71,7 @@
     addBtn.addEventListener('click', function () {
       modal.classList.add('is-open'); modal.setAttribute('aria-hidden', 'false');
       modalList.textContent = 'Loading…';
-      fetch('api/bulk-edit/templates.php' + qs)
+      fetch(API_BASE + '/bulk-edit/templates.php' + qs)
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (!d.groups) { modalList.textContent = 'No templates available.'; return; }
@@ -111,7 +112,7 @@
         value: el('be-filter-value').value
       };
       runBtn.disabled = true;
-      fetch('api/bulk-edit/create.php' + qs, {
+      fetch(API_BASE + '/bulk-edit/create.php' + qs, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name, filter: filter, actions: actions })
@@ -133,7 +134,7 @@
   function loadHistory() {
     var box = el('be-history');
     box.textContent = 'Loading…';
-    fetch('api/bulk-edit/list.php' + qs)
+    fetch(API_BASE + '/bulk-edit/list.php' + qs)
       .then(function (r) { return r.json(); })
       .then(function (d) {
         var rows = d.jobs || [];
@@ -150,7 +151,7 @@
         box.querySelectorAll('[data-undo]').forEach(function (b) {
           b.addEventListener('click', function () {
             if (!confirm('Roll back this bulk edit?')) return;
-            fetch('api/bulk-edit/undo.php' + qs, {
+            fetch(API_BASE + '/bulk-edit/undo.php' + qs, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ job_id: parseInt(b.getAttribute('data-undo'), 10) })
