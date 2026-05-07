@@ -1,0 +1,103 @@
+# SalesBoost AI — Apache rewrite rules (RewriteBase must match app URL path, usually /app/)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /app/
+
+    # Preserve Authorization header for PHP / FastCGI (session token on API calls).
+    RewriteCond %{HTTP:Authorization} ^(.+)$
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%1]
+
+    Options -Indexes
+
+    # Remove trailing slashes (except real directories)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+)/$ $1 [L,R=301,QSA]
+
+    # Existing files and directories (assets, *.php direct hits, etc.)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Canonical clean URLs: only for GET — POST to *.php must not 301 (drops body; breaks agent_run, sync, etc.)
+    RewriteCond %{REQUEST_METHOD} =GET
+    RewriteCond %{THE_REQUEST} \sGET\s/+app/[^\s?]+\.php[\s?] [NC]
+    RewriteRule ^(.+)\.php$ $1 [R=301,L,QSA]
+
+    # ---- App root ----
+    RewriteRule ^$ index.php [L,QSA]
+
+    # ---- Primary UI (clean URLs; also work via generic *.php rule) ----
+    RewriteRule ^dashboard$ dashboard.php [L,QSA]
+    RewriteRule ^analytics$ analytics.php [L,QSA]
+    RewriteRule ^action-center$ action-center.php [L,QSA]
+    RewriteRule ^reports$ reports.php [L,QSA]
+    RewriteRule ^alerts$ alerts.php [L,QSA]
+    RewriteRule ^sales-boost$ sales-boost.php [L,QSA]
+    RewriteRule ^ai-agents$ ai-agents.php [L,QSA]
+    RewriteRule ^agent-report$ agent-report.php [L,QSA]
+    RewriteRule ^customers$ customers.php [L,QSA]
+
+    # ---- Auth ----
+    RewriteRule ^auth/install$ auth/install.php [L,QSA]
+    RewriteRule ^auth/callback$ auth/callback.php [L,QSA]
+
+    # ---- Billing ----
+    RewriteRule ^billing/subscribe$ billing/subscribe.php [L,QSA]
+    RewriteRule ^billing/confirm$ billing/confirm.php [L,QSA]
+
+    # ---- Webhooks (Partner Dashboard compliance + sync) ----
+    RewriteRule ^webhooks/handler$ webhooks/handler.php [L,QSA]
+    RewriteRule ^webhooks/app_uninstalled$ webhooks/app_uninstalled.php [L,QSA]
+    RewriteRule ^webhooks/customers_data_request$ webhooks/customers_data_request.php [L,QSA]
+    RewriteRule ^webhooks/customers_redact$ webhooks/customers_redact.php [L,QSA]
+    RewriteRule ^webhooks/shop_redact$ webhooks/shop_redact.php [L,QSA]
+
+    # ---- Jobs / cron (web entry with key) ----
+    RewriteRule ^jobs/process_webhooks$ jobs/process_webhooks.php [L,QSA]
+    RewriteRule ^jobs/run_sync$ jobs/run_sync.php [L,QSA]
+    RewriteRule ^jobs/ai_weekly_digest$ jobs/ai_weekly_digest.php [L,QSA]
+    RewriteRule ^jobs/ai_dynamic_actions$ jobs/ai_dynamic_actions.php [L,QSA]
+    RewriteRule ^jobs/register_webhooks$ jobs/register_webhooks.php [L,QSA]
+
+    # ---- API: dashboard (JS uses extensionless) ----
+    RewriteRule ^api/dashboard$ api/dashboard.php [L,QSA]
+
+    # ---- API: sync & actions ----
+    RewriteRule ^api/sync/run$ api/sync/run.php [L,QSA]
+    RewriteRule ^api/actions/update$ api/actions/update.php [L,QSA]
+    RewriteRule ^api/actions/list$ api/actions/list.php [L,QSA]
+
+    # ---- API: analytics ----
+    RewriteRule ^api/analytics/revenue$ api/analytics/revenue.php [L,QSA]
+    RewriteRule ^api/analytics/products$ api/analytics/products.php [L,QSA]
+    RewriteRule ^api/analytics/customers$ api/analytics/customers.php [L,QSA]
+    RewriteRule ^api/analytics/aov$ api/analytics/aov.php [L,QSA]
+
+    # ---- API: reports ----
+    RewriteRule ^api/reports/summary$ api/reports/summary.php [L,QSA]
+    RewriteRule ^api/reports/export$ api/reports/export.php [L,QSA]
+    RewriteRule ^api/reports/schedule$ api/reports/schedule.php [L,QSA]
+
+    # ---- API: alerts ----
+    RewriteRule ^api/alerts/summary$ api/alerts/summary.php [L,QSA]
+
+    # ---- API: AI ----
+    RewriteRule ^api/ai/ping$ api/ai/ping.php [L,QSA]
+    RewriteRule ^api/ai/agent_run$ api/ai/agent_run.php [L,QSA]
+    RewriteRule ^api/ai/anomaly_explain$ api/ai/anomaly_explain.php [L,QSA]
+    RewriteRule ^api/ai/dynamic_actions$ api/ai/dynamic_actions.php [L,QSA]
+    RewriteRule ^api/ai/weekly_digest$ api/ai/weekly_digest.php [L,QSA]
+
+    # ---- Fallback: any other /path → path.php if file exists (nested routes) ----
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.+)$ $1.php [L,QSA]
+</IfModule>
+
+<IfModule mod_setenvif.c>
+    SetEnvIfNoCase Authorization "^(.*)$" HTTP_AUTHORIZATION=$1
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set Content-Security-Policy "frame-ancestors https://*.shopify.com https://admin.shopify.com https://*.myshopify.com;"
+    Header always unset X-Frame-Options
+</IfModule>

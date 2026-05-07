@@ -1,0 +1,30 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; color: #111827; background: #fff; line-height: 1.5; }
+a { color: #4338ca; }
+.hero { background: linear-gradient(135deg, #4338ca, #6366f1); color: #fff; padding-bottom: 60px; }
+.hero-nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 32px; }
+.brand { font-weight: 700; font-size: 18px; }
+.cta { background: #fff; color: #4338ca; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; }
+.cta-lg { padding: 12px 24px; font-size: 16px; }
+.hero-inner { max-width: 900px; margin: 0 auto; padding: 60px 32px; text-align: center; }
+.hero-inner h1 { font-size: 38px; margin: 0 0 18px; }
+.hero-sub { font-size: 17px; opacity: 0.92; margin-bottom: 28px; }
+
+.features { max-width: 1000px; margin: 0 auto; padding: 60px 32px; }
+.feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 720px) { .feature-grid { grid-template-columns: 1fr; } }
+.feature { background: #f9fafb; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb; }
+.feature h3 { margin: 0 0 8px; }
+
+.pricing { background: #f9fafb; padding: 60px 32px; }
+.pricing h2 { text-align: center; margin: 0 0 32px; }
+.plan-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+@media (max-width: 900px) { .plan-grid { grid-template-columns: repeat(2, 1fr); } }
+.plan { background: #fff; padding: 24px; border-radius: 8px; border: 1px solid #e5e7eb; }
+.plan h4 { margin: 0 0 8px; }
+.price { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #4338ca; }
+.plan ul { padding-left: 18px; margin: 0; font-size: 13px; }
+.plan ul li { margin-bottom: 6px; }
+
+.site-footer { background: #111827; color: #9ca3af; padding: 24px 32px; text-align: center; font-size: 13px; }
+.site-footer a { color: #c7d2fe; }

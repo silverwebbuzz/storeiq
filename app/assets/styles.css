@@ -1,0 +1,231 @@
+/* SWB StoreIQ — shared embedded app styles */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body.siq-body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: #202223;
+  background: #f6f6f7;
+}
+
+a { color: #2563eb; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Top nav ───────────────────────────────────────────── */
+.top-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fff; padding: 0 24px; height: 56px;
+  border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 50;
+}
+.top-nav__brand { font-weight: 700; font-size: 16px; }
+.top-nav__brand-name { color: #111827; }
+.top-nav__menu { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; }
+.top-nav__menu li { margin: 0; }
+.top-nav__link {
+  display: inline-block; padding: 8px 14px; color: #4b5563;
+  border-radius: 6px; cursor: pointer; font-weight: 500;
+}
+.top-nav__link:hover { background: #f3f4f6; text-decoration: none; }
+.top-nav__link.active { background: #eef2ff; color: #4338ca; }
+.top-nav__right { display: flex; align-items: center; gap: 12px; }
+.top-nav__plan-badge {
+  border: 1px solid #e5e7eb; background: #fff; padding: 6px 12px;
+  border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.top-nav__plan-badge--free    { color: #6b7280; }
+.top-nav__plan-badge--starter { color: #15803d; border-color: #bbf7d0; background: #f0fdf4; }
+.top-nav__plan-badge--growth  { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
+.top-nav__plan-badge--pro     { color: #b45309; border-color: #fde68a; background: #fffbeb; }
+.top-nav__upgrade-cta {
+  background: #6366f1; color: #fff; padding: 6px 14px; border-radius: 6px;
+  font-weight: 600; font-size: 12px;
+}
+.top-nav__upgrade-cta:hover { background: #4f46e5; text-decoration: none; }
+
+/* ── Layout ────────────────────────────────────────────── */
+.siq-shell { display: flex; min-height: calc(100vh - 56px); }
+.siq-main { flex: 1; padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+.siq-page-title { font-size: 22px; font-weight: 700; margin: 0 0 16px; color: #111827; }
+.siq-page-sub   { color: #6b7280; margin: -8px 0 24px; }
+
+/* ── Cards ─────────────────────────────────────────────── */
+.siq-card {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 20px; margin-bottom: 16px;
+}
+.siq-card__title { font-weight: 600; font-size: 15px; margin: 0 0 12px; color: #111827; }
+.siq-card__row   { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.siq-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.siq-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 720px) {
+  .siq-grid-3, .siq-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Buttons ───────────────────────────────────────────── */
+.btn {
+  display: inline-block; border-radius: 6px; padding: 8px 14px;
+  font-weight: 600; font-size: 13px; cursor: pointer; border: 1px solid transparent;
+}
+.btn:hover { text-decoration: none; }
+.btn-primary { background: #6366f1; color: #fff; }
+.btn-primary:hover { background: #4f46e5; }
+.btn-ghost { background: transparent; color: #4b5563; border-color: #d1d5db; }
+.btn-ghost:hover { background: #f3f4f6; }
+.btn-danger { background: #dc2626; color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+.btn-sm { padding: 6px 10px; font-size: 12px; }
+.btn[disabled], .btn.feature-disabled { opacity: .5; cursor: not-allowed; pointer-events: none; }
+
+/* ── Status badges ─────────────────────────────────────── */
+.siq-badge {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; text-transform: capitalize;
+  background: #f3f4f6; color: #4b5563;
+}
+.siq-badge--queued    { background: #f3f4f6; color: #4b5563; }
+.siq-badge--scheduled { background: #f3f4f6; color: #4b5563; }
+.siq-badge--running   { background: #dbeafe; color: #1d4ed8; }
+.siq-badge--completed { background: #dcfce7; color: #15803d; }
+.siq-badge--failed    { background: #fee2e2; color: #b91c1c; }
+.siq-badge--reverted  { background: #ede9fe; color: #6d28d9; }
+.siq-badge--cancelled { background: #fef3c7; color: #92400e; }
+.siq-badge--draft     { background: #f3f4f6; color: #6b7280; }
+.siq-badge--rolled_back { background: #ede9fe; color: #6d28d9; }
+
+.siq-plan-badge {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+}
+.siq-plan-badge--free    { background: #f3f4f6; color: #6b7280; }
+.siq-plan-badge--starter { background: #dcfce7; color: #15803d; }
+.siq-plan-badge--growth  { background: #dbeafe; color: #1d4ed8; }
+.siq-plan-badge--pro     { background: #fef3c7; color: #b45309; }
+
+/* ── Progress bar ──────────────────────────────────────── */
+.siq-progress {
+  width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;
+}
+.siq-progress__bar {
+  height: 100%; background: #6366f1; transition: width .3s ease; width: 0;
+}
+
+/* ── Health score circle ───────────────────────────────── */
+.siq-health {
+  width: 160px; height: 160px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 42px; font-weight: 700; border: 10px solid #e5e7eb;
+  margin: 0 auto;
+}
+.siq-health--green { border-color: #16a34a; color: #166534; }
+.siq-health--amber { border-color: #f59e0b; color: #92400e; }
+.siq-health--red   { border-color: #dc2626; color: #991b1b; }
+
+/* ── Tables ────────────────────────────────────────────── */
+.siq-table { width: 100%; border-collapse: collapse; }
+.siq-table th, .siq-table td {
+  text-align: left; padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 13px;
+}
+.siq-table th { background: #f9fafb; font-weight: 600; color: #4b5563; }
+.siq-table tr:hover td { background: #fafafa; }
+
+/* ── Forms ─────────────────────────────────────────────── */
+.siq-input, .siq-select, .siq-textarea {
+  width: 100%; padding: 8px 12px; border-radius: 6px;
+  border: 1px solid #d1d5db; font-size: 13px; background: #fff;
+}
+.siq-textarea { min-height: 80px; }
+.siq-label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px; display: block; }
+.siq-form-row { margin-bottom: 14px; }
+
+/* ── Calendar ──────────────────────────────────────────── */
+.siq-calendar {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px;
+}
+.siq-cal-cell {
+  min-height: 80px; padding: 6px 8px; background: #f9fafb;
+  border-radius: 4px; font-size: 12px;
+}
+.siq-cal-cell--today { background: #eef2ff; }
+.siq-cal-event {
+  display: block; background: #6366f1; color: #fff;
+  padding: 2px 6px; border-radius: 3px; margin-top: 2px;
+  font-size: 10px; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ── Locked / upgrade overlay ──────────────────────────── */
+.feature-lock-overlay {
+  position: relative; min-height: 200px;
+}
+.feature-lock-overlay::before {
+  content: ''; position: absolute; inset: 0;
+  backdrop-filter: blur(4px); background: rgba(255,255,255,.6);
+  border-radius: 8px;
+}
+.feature-lock-overlay-inner {
+  position: relative; z-index: 1; padding: 32px; text-align: center;
+}
+.feature-lock-overlay-title { font-weight: 700; font-size: 18px; margin-bottom: 6px; }
+.feature-lock-overlay-copy  { color: #4b5563; margin-bottom: 16px; }
+.feature-lock-cta {
+  display: inline-block; background: #6366f1; color: #fff;
+  padding: 10px 18px; border-radius: 6px; font-weight: 600;
+}
+.feature-lock-cta:hover { background: #4f46e5; text-decoration: none; }
+.feature-lock-desc--hint { color: #6b7280; font-size: 12px; margin-top: 8px; }
+
+/* ── Modals ────────────────────────────────────────────── */
+.sb-modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,.4);
+  display: none; align-items: center; justify-content: center; z-index: 100;
+}
+.sb-modal.is-open { display: flex; }
+.sb-modal__panel {
+  background: #fff; border-radius: 8px; max-width: 920px; width: 92%;
+  max-height: 90vh; overflow-y: auto;
+}
+.sb-modal__head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 20px; border-bottom: 1px solid #e5e7eb;
+}
+.sb-modal__title { font-weight: 700; font-size: 18px; }
+.sb-modal__meta  { color: #6b7280; font-size: 13px; margin-top: 4px; }
+.sb-modal__close {
+  background: transparent; border: 1px solid #d1d5db; padding: 6px 12px;
+  border-radius: 6px; cursor: pointer;
+}
+.sb-modal__body { padding: 20px; }
+
+/* Plan grid in modal */
+.sb-plan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 900px) { .sb-plan-grid { grid-template-columns: repeat(2, 1fr); } }
+.sb-plan-card {
+  border: 1px solid #e5e7eb; border-radius: 8px; padding: 18px;
+  display: flex; flex-direction: column; min-height: 280px;
+}
+.sb-plan-card.is-current { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,.2); }
+.sb-plan-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.sb-plan-copy { color: #6b7280; font-size: 12px; margin-bottom: 12px; }
+.sb-plan-features { margin: 0 0 12px; padding-left: 18px; font-size: 12px; color: #4b5563; }
+.sb-plan-features li { margin-bottom: 4px; }
+.sb-plan-action { margin-top: auto; }
+
+/* ── Misc ──────────────────────────────────────────────── */
+.siq-muted { color: #6b7280; }
+.siq-flex  { display: flex; gap: 12px; align-items: center; }
+.siq-flex-between { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.siq-mt-16 { margin-top: 16px; }
+.siq-mt-24 { margin-top: 24px; }
+.siq-empty {
+  text-align: center; padding: 40px; color: #9ca3af; font-size: 13px;
+}
+.siq-tabs {
+  display: flex; gap: 4px; border-bottom: 1px solid #e5e7eb; margin-bottom: 16px;
+}
+.siq-tab {
+  padding: 8px 16px; cursor: pointer; font-weight: 600; font-size: 13px;
+  color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.siq-tab.active { color: #4338ca; border-bottom-color: #6366f1; }

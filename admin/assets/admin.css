@@ -1,0 +1,36 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: #f6f6f7; color: #111827; }
+a { color: #2563eb; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.login-box { max-width: 360px; margin: 80px auto; background: #fff; padding: 32px; border-radius: 8px; border: 1px solid #e5e7eb; }
+.login-box h1 { margin-top: 0; font-size: 22px; }
+.login-box label { display: block; margin: 12px 0; font-size: 13px; font-weight: 600; }
+.login-box input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-top: 4px; font-size: 14px; }
+.login-box button { background: #6366f1; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 16px; }
+.login-error { background: #fee2e2; color: #991b1b; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; }
+
+.admin-shell { display: flex; min-height: 100vh; }
+.admin-nav { width: 220px; background: #1f2937; color: #e5e7eb; padding: 20px; }
+.admin-brand { font-weight: 700; font-size: 16px; margin-bottom: 24px; }
+.admin-nav ul { list-style: none; padding: 0; margin: 0; }
+.admin-nav li { margin: 4px 0; }
+.admin-nav a { display: block; color: #d1d5db; padding: 8px 10px; border-radius: 4px; }
+.admin-nav a:hover { background: #374151; text-decoration: none; }
+.admin-nav li.active a { background: #4338ca; color: #fff; }
+.admin-user { margin-top: 24px; padding-top: 12px; border-top: 1px solid #374151; font-size: 12px; }
+
+.admin-main { flex: 1; padding: 24px; max-width: 1200px; }
+.admin-main h1 { font-size: 22px; margin: 0 0 16px; }
+
+.admin-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 18px; margin-bottom: 16px; }
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th, .admin-table td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: left; font-size: 13px; }
+.admin-table th { background: #f9fafb; font-weight: 600; color: #4b5563; }
+.btn { display: inline-block; padding: 6px 12px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; cursor: pointer; font-size: 12px; font-weight: 600; }
+.btn-primary { background: #6366f1; color: #fff; border-color: #6366f1; }
+.btn-danger { background: #dc2626; color: #fff; border-color: #dc2626; }
+input[type="text"], input[type="email"], input[type="number"], select, textarea {
+  padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px;
+}
+textarea { width: 100%; min-height: 80px; }

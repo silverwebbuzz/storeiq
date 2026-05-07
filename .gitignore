@@ -1,0 +1,63 @@
+# ── Secrets / config (NEVER commit) ───────────────────────────
+app/config.php
+app/config.local.php
+.env
+.env.*
+!.env.example
+
+# ── Internal / planning docs (don't ship) ─────────────────────
+Documents/
+storeiq_build_prompts.md
+storeiq_copy_guide.md
+storeiq_folder_structure.txt
+storeiq_schema*.sql
+*.sql.bak
+*.sql.gz
+
+# ── Logs ──────────────────────────────────────────────────────
+app/logs/*
+!app/logs/.gitkeep
+*.log
+admin/logs/
+
+# ── Tooling / agents ──────────────────────────────────────────
+.claude/
+.cursor/
+.aider*
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── OS junk ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+Icon?
+
+# ── PHP / Composer / dependencies ─────────────────────────────
+vendor/
+composer.lock
+composer.phar
+
+# ── Node (if you ever add tooling) ────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log
+.pnpm-store/
+
+# ── Build / cache ─────────────────────────────────────────────
+*.cache
+.tmp/
+tmp/
+*.tmp
+
+# ── Backups / scratch ─────────────────────────────────────────
+*.bak
+*.orig
+*~
+*.rej
+
+# ── Local developer overrides ─────────────────────────────────
+*.local
+local/
