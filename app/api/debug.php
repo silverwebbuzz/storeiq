@@ -78,17 +78,53 @@ if ($shop) {
             'i', [$sid]
         );
 
-        // Sample 1 product from Shopify (validates access_token).
+        // Sample 1 product from Shopify (validates access_token + scopes).
         if (!empty($rec['access_token'])) {
             try {
-                $resp = shopifyRequest($shop, (string)$rec['access_token'], 'GET', '/products/count.json');
-                $out['shopify_product_count'] = is_array($resp) ? ($resp['count'] ?? null) : null;
-                $out['shopify_api_ok'] = is_array($resp);
+                $meta = shopifyRequestWithMeta($shop, (string)$rec['access_token'], 'GET', '/products/count.json');
+                $out['shopify_http_code']     = $meta['http_code'] ?? null;
+                $out['shopify_response_raw']  = is_array($meta['data'] ?? null) ? $meta['data'] : ($meta['raw'] ?? null);
+                $out['shopify_product_count'] = is_array($meta['data'] ?? null) ? ($meta['data']['count'] ?? null) : null;
+                $out['shopify_api_ok']        = ($meta['http_code'] ?? 0) === 200 && isset($meta['data']['count']);
+                if (!$out['shopify_api_ok']) {
+                    $out['errors'][] = 'shopify_count_failed_http_' . ($meta['http_code'] ?? 'unknown');
+                }
             } catch (Throwable $e) {
                 $out['errors'][] = 'shopify: ' . $e->getMessage();
                 $out['shopify_api_ok'] = false;
             }
         }
+
+        // Recent failed jobs with error messages (key for diagnosing stuck queue).
+        $out['recent_failed_jobs'] = DBHelper::select(
+            "SELECT id, job_type, status, attempts, error_message, run_at, started_at, completed_at
+             FROM job_queue
+             WHERE shop_id = ? AND (status = 'failed' OR error_message IS NOT NULL)
+             ORDER BY id DESC LIMIT 5",
+            'i', [$sid]
+        );
+        $out['active_queue_jobs'] = DBHelper::select(
+            "SELECT id, job_type, reference_id, status, attempts, run_at, started_at, error_message
+             FROM job_queue
+             WHERE shop_id = ? AND status IN ('pending','running')
+             ORDER BY id ASC",
+            'i', [$sid]
+        );
+
+        // Hygiene rules state.
+        $out['hygiene_rules_in_catalog'] = (int)(DBHelper::selectOne(
+            "SELECT COUNT(*) AS c FROM hygiene_rule_definitions WHERE is_active = 1"
+        )['c'] ?? 0);
+        $out['hygiene_rules_enabled_for_shop'] = (int)(DBHelper::selectOne(
+            "SELECT COUNT(*) AS c FROM shop_hygiene_rules WHERE shop_id = ? AND is_enabled = 1",
+            'i', [$sid]
+        )['c'] ?? 0);
+        $out['bulk_templates_active'] = (int)(DBHelper::selectOne(
+            "SELECT COUNT(*) AS c FROM bulk_action_templates WHERE is_active = 1"
+        )['c'] ?? 0);
+        $out['campaign_templates_active'] = (int)(DBHelper::selectOne(
+            "SELECT COUNT(*) AS c FROM campaign_templates WHERE is_active = 1"
+        )['c'] ?? 0);
     } else {
         $out['errors'][] = "shop_not_in_stores_table: {$shop}";
         $out['ok'] = false;
