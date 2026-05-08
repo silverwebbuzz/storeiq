@@ -131,6 +131,97 @@ function exchangeCodeForAccessToken(string $shop, string $code): ?string
 }
 
 /**
+ * Token Exchange — swaps an App Bridge session token (JWT issued by Shopify to the
+ * embedded iframe) for an EXPIRING OFFLINE access token. This is the modern flow
+ * required by Shopify for new apps.
+ *
+ * @param string $shop          e.g. mystore.myshopify.com
+ * @param string $sessionToken  JWT obtained via shopify.idToken() in the browser
+ * @return array|null  ['access_token' => ..., 'scope' => ..., 'expires_in' => seconds]
+ */
+function tokenExchange(string $shop, string $sessionToken): ?array
+{
+    $endpoint = "https://{$shop}/admin/oauth/access_token";
+    $payload  = [
+        'client_id'            => SHOPIFY_API_KEY,
+        'client_secret'        => SHOPIFY_API_SECRET,
+        'grant_type'           => 'urn:ietf:params:oauth:grant-type:token-exchange',
+        'subject_token'        => $sessionToken,
+        'subject_token_type'   => 'urn:ietf:params:oauth:token-type:id_token',
+        'requested_token_type' => 'urn:shopify:params:oauth:token-type:offline-access-token',
+    ];
+
+    $ch = curl_init($endpoint);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($payload));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+
+    $response = curl_exec($ch);
+    $errno    = curl_errno($ch);
+    $err      = curl_error($ch);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($errno || !$response || $httpCode < 200 || $httpCode >= 300) {
+        $ctx = [
+            'shop' => $shop,
+            'http_code' => $httpCode,
+            'curl_errno' => $errno,
+            'curl_error' => $err,
+            'response' => is_string($response) ? $response : null,
+        ];
+        $GLOBALS['siq_token_exchange_last_error'] = $ctx;
+        debugLog('[oauth] token_exchange_failed', $ctx);
+        if (function_exists('sbm_log_write')) {
+            sbm_log_write('auth', 'token_exchange_failed', $ctx);
+        }
+        return null;
+    }
+
+    $data = json_decode($response, true);
+    if (!is_array($data) || empty($data['access_token'])) {
+        return null;
+    }
+    return [
+        'access_token' => (string)$data['access_token'],
+        'scope'        => (string)($data['scope'] ?? ''),
+        'expires_in'   => (int)($data['expires_in'] ?? 0),  // seconds
+    ];
+}
+
+/**
+ * Persist a freshly-exchanged token onto an existing store row.
+ * Updates expiry + scope + last_refresh.
+ */
+function saveExchangedToken(string $shop, array $exchanged): void
+{
+    $mysqli = db();
+    $token  = (string)($exchanged['access_token'] ?? '');
+    $scope  = (string)($exchanged['scope'] ?? '');
+    $expIn  = (int)($exchanged['expires_in'] ?? 0);
+    $expAt  = $expIn > 0 ? date('Y-m-d H:i:s', time() + $expIn) : null;
+
+    $stmt = $mysqli->prepare(
+        "UPDATE stores
+         SET access_token = ?,
+             access_token_scope = ?,
+             access_token_expires_at = ?,
+             last_token_refresh_at = NOW(),
+             status = 'installed',
+             uninstalled_at = NULL,
+             updated_at = NOW()
+         WHERE shop = ?"
+    );
+    if (!$stmt) {
+        throw new Exception('Prepare failed: ' . $mysqli->error);
+    }
+    $stmt->bind_param('ssss', $token, $scope, $expAt, $shop);
+    $stmt->execute();
+    $stmt->close();
+}
+
+/**
  * Fetch shop details via REST Admin API.
  *
  * @param string $shop

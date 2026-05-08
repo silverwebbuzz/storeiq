@@ -101,5 +101,5 @@
     });
   }
 
-  loadFlags();
+  (window.__siqReady || Promise.resolve()).then(loadFlags);
 })();

@@ -184,6 +184,8 @@
 
   if (el('new-campaign-btn')) el('new-campaign-btn').addEventListener('click', openNew);
 
-  loadList();
-  renderCalendar();
+  (window.__siqReady || Promise.resolve()).then(function () {
+    loadList();
+    renderCalendar();
+  });
 })();

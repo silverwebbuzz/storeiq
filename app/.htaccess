@@ -39,8 +39,9 @@
     RewriteRule ^activity$   activity.php   [L,QSA]
 
     # ---- Auth ----
-    RewriteRule ^auth/install$  auth/install.php  [L,QSA]
-    RewriteRule ^auth/callback$ auth/callback.php [L,QSA]
+    RewriteRule ^auth/install$        auth/install.php        [L,QSA]
+    RewriteRule ^auth/callback$       auth/callback.php       [L,QSA]
+    RewriteRule ^auth/token_exchange$ auth/token_exchange.php [L,QSA]
 
     # ---- Billing ----
     RewriteRule ^billing/subscribe$ billing/subscribe.php [L,QSA]

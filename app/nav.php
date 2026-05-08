@@ -228,6 +228,51 @@ $planUrlPro     = siq_upgrade_url((string)$shopForPlan, $hostForPlan, 'pro');
       };
       // Backwards-compatible alias for any copy-pasted SalesBoost code.
       window.sbmOpenRemote = window.siqOpenRemote;
+
+      // ── Token Exchange bootstrap ────────────────────────────────────
+      // On every page load, swap the App Bridge session token for an
+      // offline access token (Shopify mandates this for new apps —
+      // legacy non-expiring tokens are rejected with HTTP 403).
+      // Throttle to once per hour so we don't hit the endpoint too often.
+      window.__siqReady = new Promise(function (resolve) {
+        var TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
+        var lastKey = '__siq_token_exchanged_at';
+        var lastAt = 0;
+        try { lastAt = parseInt(sessionStorage.getItem(lastKey) || '0', 10) || 0; } catch (e0) {}
+
+        if (Date.now() - lastAt < TOKEN_TTL_MS) {
+          resolve({ ok: true, cached: true });
+          return;
+        }
+
+        (async function () {
+          try {
+            var token = await window.getToken();
+            if (!token) {
+              resolve({ ok: false, error: 'no_session_token' });
+              return;
+            }
+            var base = (window.SIQ_BASE_URL || '');
+            var resp = await fetch(base + '/auth/token_exchange.php', {
+              method: 'POST',
+              headers: { 'Authorization': 'Bearer ' + token },
+              credentials: 'same-origin'
+            });
+            var data = null;
+            try { data = await resp.json(); } catch (e1) { data = null; }
+            if (resp.ok && data && data.ok) {
+              try { sessionStorage.setItem(lastKey, String(Date.now())); } catch (e2) {}
+              resolve({ ok: true, data: data });
+            } else {
+              if (window.console) console.warn('[StoreIQ] token_exchange failed', resp.status, data);
+              resolve({ ok: false, status: resp.status, data: data });
+            }
+          } catch (e) {
+            if (window.console) console.error('[StoreIQ] token_exchange error', e);
+            resolve({ ok: false, error: String(e) });
+          }
+        })();
+      });
     }
 
     var params = new URLSearchParams(window.location.search);

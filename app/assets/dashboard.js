@@ -131,6 +131,7 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', load);
-  if (document.readyState !== 'loading') load();
+  function start() { (window.__siqReady || Promise.resolve()).then(load); }
+  document.addEventListener('DOMContentLoaded', start);
+  if (document.readyState !== 'loading') start();
 })();
