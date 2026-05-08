@@ -922,7 +922,7 @@ function registerWebhooks(string $shop, string $token): void
 {
     // Use BASE_URL for webhook addresses to match app routing (/app/...) consistently.
     $base = rtrim(defined('BASE_URL') ? BASE_URL : SHOPIFY_APP_URL, '/');
-    $apiVersion = '2026-01';
+    $apiVersion = SHOPIFY_API_VERSION;
     $endpoint = "https://{$shop}/admin/api/{$apiVersion}/webhooks.json";
 
     $webhooks = [
