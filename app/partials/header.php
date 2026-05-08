@@ -17,5 +17,6 @@ $baseUrlForAssets = rtrim((string)(defined('BASE_URL') ? BASE_URL : ''), '/');
     window.SIQ_BASE_URL = <?php echo json_encode($baseUrlForAssets); ?>;
     window.SIQ_API_BASE = window.SIQ_BASE_URL + '/api';
   </script>
+  <script src="<?php echo htmlspecialchars($baseUrlForAssets, ENT_QUOTES, 'UTF-8'); ?>/assets/boot.js"></script>
 </head>
 <body class="siq-body">

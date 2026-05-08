@@ -228,72 +228,7 @@ $planUrlPro     = siq_upgrade_url((string)$shopForPlan, $hostForPlan, 'pro');
       };
       // Backwards-compatible alias for any copy-pasted SalesBoost code.
       window.sbmOpenRemote = window.siqOpenRemote;
-
-      // ── Token Exchange bootstrap ────────────────────────────────────
-      // On every page load, swap the App Bridge session token for an
-      // offline access token (Shopify mandates this for new apps —
-      // legacy non-expiring tokens are rejected with HTTP 403).
-      // Throttle to once per hour so we don't hit the endpoint too often.
-      window.__siqReady = new Promise(function (resolve) {
-        var TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
-        var lastKey = '__siq_token_exchanged_at';
-        var lastAt = 0;
-        try { lastAt = parseInt(sessionStorage.getItem(lastKey) || '0', 10) || 0; } catch (e0) {}
-
-        if (Date.now() - lastAt < TOKEN_TTL_MS) {
-          if (window.console) console.log('[StoreIQ] token_exchange skipped (cached, last run ' + Math.round((Date.now()-lastAt)/1000) + 's ago)');
-          resolve({ ok: true, cached: true });
-          return;
-        }
-
-        // Hard timeout so a hung getToken() doesn't block the whole page forever.
-        var resolved = false;
-        function safeResolve(v) {
-          if (resolved) return;
-          resolved = true;
-          resolve(v);
-        }
-        setTimeout(function () {
-          if (!resolved) {
-            if (window.console) console.warn('[StoreIQ] token_exchange timed out after 8s');
-            safeResolve({ ok: false, error: 'timeout' });
-          }
-        }, 8000);
-
-        (function () {
-          var p = (typeof window.getToken === 'function') ? window.getToken() : Promise.resolve(null);
-          Promise.resolve(p).then(function (token) {
-            if (!token) {
-              if (window.console) console.warn('[StoreIQ] no session token from App Bridge');
-              safeResolve({ ok: false, error: 'no_session_token' });
-              return;
-            }
-            if (window.console) console.log('[StoreIQ] got session token, calling token_exchange.php');
-            var base = (window.SIQ_BASE_URL || '');
-            return fetch(base + '/auth/token_exchange.php', {
-              method: 'POST',
-              headers: { 'Authorization': 'Bearer ' + token },
-              credentials: 'same-origin'
-            }).then(function (resp) {
-              return resp.text().then(function (txt) {
-                var data = null;
-                try { data = JSON.parse(txt); } catch (e1) { data = null; }
-                if (resp.ok && data && data.ok) {
-                  try { sessionStorage.setItem(lastKey, String(Date.now())); } catch (e2) {}
-                  if (window.console) console.log('[StoreIQ] token_exchange OK', data);
-                  safeResolve({ ok: true, data: data });
-                } else {
-                  if (window.console) console.error('[StoreIQ] token_exchange failed status=' + resp.status + ' body=' + txt);
-                  safeResolve({ ok: false, status: resp.status, body: txt });
-                }
-              });
-            });
-          }).catch(function (e) {
-            if (window.console) console.error('[StoreIQ] token_exchange error', e);
-            safeResolve({ ok: false, error: String(e) });
-          });
-        })();
-      });
+      // Token exchange now lives in /app/assets/boot.js (loaded from header.php).
     }
 
     var params = new URLSearchParams(window.location.search);
