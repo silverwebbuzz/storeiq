@@ -241,36 +241,57 @@ $planUrlPro     = siq_upgrade_url((string)$shopForPlan, $hostForPlan, 'pro');
         try { lastAt = parseInt(sessionStorage.getItem(lastKey) || '0', 10) || 0; } catch (e0) {}
 
         if (Date.now() - lastAt < TOKEN_TTL_MS) {
+          if (window.console) console.log('[StoreIQ] token_exchange skipped (cached, last run ' + Math.round((Date.now()-lastAt)/1000) + 's ago)');
           resolve({ ok: true, cached: true });
           return;
         }
 
-        (async function () {
-          try {
-            var token = await window.getToken();
+        // Hard timeout so a hung getToken() doesn't block the whole page forever.
+        var resolved = false;
+        function safeResolve(v) {
+          if (resolved) return;
+          resolved = true;
+          resolve(v);
+        }
+        setTimeout(function () {
+          if (!resolved) {
+            if (window.console) console.warn('[StoreIQ] token_exchange timed out after 8s');
+            safeResolve({ ok: false, error: 'timeout' });
+          }
+        }, 8000);
+
+        (function () {
+          var p = (typeof window.getToken === 'function') ? window.getToken() : Promise.resolve(null);
+          Promise.resolve(p).then(function (token) {
             if (!token) {
-              resolve({ ok: false, error: 'no_session_token' });
+              if (window.console) console.warn('[StoreIQ] no session token from App Bridge');
+              safeResolve({ ok: false, error: 'no_session_token' });
               return;
             }
+            if (window.console) console.log('[StoreIQ] got session token, calling token_exchange.php');
             var base = (window.SIQ_BASE_URL || '');
-            var resp = await fetch(base + '/auth/token_exchange.php', {
+            return fetch(base + '/auth/token_exchange.php', {
               method: 'POST',
               headers: { 'Authorization': 'Bearer ' + token },
               credentials: 'same-origin'
+            }).then(function (resp) {
+              return resp.text().then(function (txt) {
+                var data = null;
+                try { data = JSON.parse(txt); } catch (e1) { data = null; }
+                if (resp.ok && data && data.ok) {
+                  try { sessionStorage.setItem(lastKey, String(Date.now())); } catch (e2) {}
+                  if (window.console) console.log('[StoreIQ] token_exchange OK', data);
+                  safeResolve({ ok: true, data: data });
+                } else {
+                  if (window.console) console.error('[StoreIQ] token_exchange failed status=' + resp.status + ' body=' + txt);
+                  safeResolve({ ok: false, status: resp.status, body: txt });
+                }
+              });
             });
-            var data = null;
-            try { data = await resp.json(); } catch (e1) { data = null; }
-            if (resp.ok && data && data.ok) {
-              try { sessionStorage.setItem(lastKey, String(Date.now())); } catch (e2) {}
-              resolve({ ok: true, data: data });
-            } else {
-              if (window.console) console.warn('[StoreIQ] token_exchange failed', resp.status, data);
-              resolve({ ok: false, status: resp.status, data: data });
-            }
-          } catch (e) {
+          }).catch(function (e) {
             if (window.console) console.error('[StoreIQ] token_exchange error', e);
-            resolve({ ok: false, error: String(e) });
-          }
+            safeResolve({ ok: false, error: String(e) });
+          });
         })();
       });
     }
